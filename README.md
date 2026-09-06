@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" width="180" alt="Ambient HybridAI">
+<img src="logo.png" width="180" alt="FluxConvert">
 
 # FluxConvert
 
@@ -47,15 +47,11 @@ Whether you're converting from images, videos or documents, FluxConvert delivers
 
 <b>Web Version [For any device with web browser (eg. Chrome, Edge, Safari, Samsung Browser etc.)]</b>
 
-<p><img src="screenshots/web.png"><p>
+<p><img src="pc.png"><p>
 
-<b>Android Tab / Phone / Foldables Version [Android 10 & Up]</b>
+<b>Phone Web Version</b>
 
-<p><img src="screenshots/tab.png"><p>
-
-<b>Windows Version [Windows 10 / 11 x64 / ARM64]</b>
-
-<p><img src="screenshots/windows.png"><p>
+<p><img src="mobile.png"><p>
 
 ---
 
