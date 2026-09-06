@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="logo.png" width="180" alt="FluxConvert">
+<img src="icon.png" width="180" alt="FluxConvert">
 
 # FluxConvert
 
