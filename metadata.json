@@ -1,0 +1,6 @@
+{
+  "name": "Universal Local File Converter",
+  "description": "Convert 100+ file formats 100% locally and privately inside your web browser across images, documents, videos, audio, data, archives, and code.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

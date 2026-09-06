@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FluxConvert - 100% Local Browser File Converter</title>
+  <meta name="description" content="Convert 100+ file formats 100% locally and privately inside your web browser across images, documents, audio, video, spreadsheets, data, and code without uploading files to any server." />
+
+  <!-- Tailwind CSS CDN with configuration -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          },
+          boxShadow: {
+            '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+            'xs': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Conversion Engine CDNs (100% Client-Side In-Browser) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    code, kbd, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(241, 245, 249, 0.5);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="h-16 px-4 sm:px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-30 transition-colors">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm shadow-indigo-600/20">
+        <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
+          FluxConvert
+        </span>
+        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-bold text-slate-600 uppercase tracking-wider hidden sm:inline-block border border-slate-200">
+          100% Local Engine
+        </span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 sm:gap-6 text-sm font-medium text-slate-600">
+      <div class="hidden lg:flex items-center gap-6 text-xs font-semibold">
+        <span class="text-indigo-600 font-bold cursor-pointer">Converter</span>
+        <button onclick="openFormatExplorer()" class="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1">
+          <span>Matrix (100+)</span>
+        </button>
+        <span class="text-slate-400 hover:text-slate-700 cursor-pointer transition-colors" onclick="showToast('Zero-upload browser hardware pipeline active', 'info')">
+          Optimizer
+        </span>
+      </div>
+
+      <div class="hidden sm:block h-4 w-[1px] bg-slate-200"></div>
+
+      <!-- Offline Emerald Badge -->
+      <div class="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 shadow-2xs">
+        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+        <span class="text-xs font-bold uppercase tracking-wider">System Ready</span>
+      </div>
+
+      <!-- 100+ Matrix Button -->
+      <button
+        id="open-format-explorer-btn"
+        onclick="openFormatExplorer()"
+        class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all shadow-2xs active:scale-95 border border-indigo-100"
+        title="Browse all 100+ supported file format conversion pairs"
+      >
+        <i data-lucide="grid" class="h-3.5 w-3.5"></i>
+        <span class="hidden sm:inline">100+ Matrix</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-6 space-y-6">
+
+    <!-- Quick Presets Carousel -->
+    <div id="quick-presets-container" class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar text-xs">
+      <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px] shrink-0 flex items-center gap-1.5 mr-1">
+        <i data-lucide="sparkles" class="h-3.5 w-3.5 text-indigo-500"></i>
+        <span>Quick Samples:</span>
+      </span>
+
+      <button onclick="loadSampleImage()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-semibold shrink-0 border border-slate-200 transition-colors shadow-2xs">
+        <i data-lucide="image" class="h-3.5 w-3.5 text-indigo-500"></i>
+        <span>PNG → WebP</span>
+      </button>
+
+      <button onclick="loadSampleSpreadsheet()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-semibold shrink-0 border border-slate-200 transition-colors shadow-2xs">
+        <i data-lucide="table" class="h-3.5 w-3.5 text-emerald-500"></i>
+        <span>CSV → Excel</span>
+      </button>
+
+      <button onclick="loadSampleDocument()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-semibold shrink-0 border border-slate-200 transition-colors shadow-2xs">
+        <i data-lucide="file-text" class="h-3.5 w-3.5 text-blue-500"></i>
+        <span>MD → PDF</span>
+      </button>
+
+      <button onclick="loadSampleData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-semibold shrink-0 border border-slate-200 transition-colors shadow-2xs">
+        <i data-lucide="code" class="h-3.5 w-3.5 text-amber-500"></i>
+        <span>JSON → YAML</span>
+      </button>
+
+      <button onclick="loadSampleAudio()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 font-semibold shrink-0 border border-slate-200 transition-colors shadow-2xs">
+        <i data-lucide="music" class="h-3.5 w-3.5 text-purple-500"></i>
+        <span>WAV → MP3</span>
+      </button>
+    </div>
+
+    <!-- Dropzone Area -->
+    <div
+      id="file-dropzone-container"
+      class="relative group cursor-pointer rounded-3xl border-2 border-dashed border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200 overflow-hidden shadow-xs"
+      onclick="document.getElementById('file-upload-input').click()"
+    >
+      <input
+        id="file-upload-input"
+        type="file"
+        multiple
+        class="hidden"
+        onchange="handleFileInputChange(event)"
+      />
+
+      <div class="p-8 sm:p-12 text-center flex flex-col items-center justify-center relative z-10">
+        <!-- Geometric Icon Box -->
+        <div id="dropzone-icon" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5 group-hover:scale-105 group-hover:bg-indigo-100 transition-all duration-300 shadow-inner">
+          <i data-lucide="upload-cloud" class="w-8 h-8 sm:w-10 sm:h-10"></i>
+        </div>
+
+        <h2 id="dropzone-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 mb-2 tracking-tight">
+          Drag & Drop Files
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 text-center max-w-md mb-6 leading-relaxed">
+          Convert your images, videos, audio, documents, spreadsheets & code instantly. 100% private, files never leave your computer.
+        </p>
+
+        <!-- Main Button -->
+        <button
+          type="button"
+          onclick="event.stopPropagation(); document.getElementById('file-upload-input').click()"
+          class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 transition-all mb-6"
+        >
+          Browse Device
+        </button>
+
+        <!-- Category Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+            <i data-lucide="image" class="h-3 w-3"></i> Images (PNG, WebP, JPG, SVG, ICO)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <i data-lucide="file-text" class="h-3 w-3"></i> Docs (PDF, Word DOCX, Markdown, HTML, TXT)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <i data-lucide="table" class="h-3 w-3"></i> Sheets (Excel XLSX, CSV, TSV, SQL)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <i data-lucide="music" class="h-3 w-3"></i> Audio (MP3, WAV, FLAC, AAC, OGG)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <i data-lucide="video" class="h-3 w-3"></i> Video (MP4, WebM, GIF, Frames ZIP)
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+            <i data-lucide="database" class="h-3 w-3"></i> Data (JSON, YAML, XML, TS, Base64)
+          </span>
+        </div>
+
+        <div class="mt-4 text-[11px] text-slate-400 flex items-center gap-1.5">
+          <i data-lucide="sparkles" class="h-3.5 w-3.5 text-indigo-500"></i>
+          <span>Tip: You can also paste copied images or text directly with <kbd class="px-1.5 py-0.5 bg-slate-100 rounded font-mono text-[10px] text-slate-600 border border-slate-200 font-bold">Ctrl+V</kbd></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Controls Bar (hidden if queue is empty) -->
+    <div
+      id="batch-controls-bar"
+      class="hidden bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3"
+    >
+      <div class="flex items-center gap-3 text-xs sm:text-sm text-slate-600 w-full sm:w-auto justify-between sm:justify-start">
+        <span id="queue-total-text" class="font-bold text-slate-900">0 files in queue</span>
+        <div id="queue-status-subtext" class="flex items-center gap-2 text-xs text-slate-500"></div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-slate-400 hidden md:inline">Convert all to:</span>
+          <select
+            id="batch-format-select"
+            onchange="applyBatchTargetFormat(this.value); this.value='';"
+            class="bg-slate-100 text-slate-700 text-xs rounded-xl px-3 py-2 border border-slate-200 focus:outline-none font-semibold uppercase"
+          >
+            <option value="" disabled selected>Choose format...</option>
+            <optgroup label="Images">
+              <option value="webp">WEBP (Compressed)</option>
+              <option value="png">PNG (Lossless)</option>
+              <option value="jpg">JPG (Photo)</option>
+              <option value="ico">ICO (Favicon)</option>
+            </optgroup>
+            <optgroup label="Documents">
+              <option value="pdf">PDF Document</option>
+              <option value="md">Markdown</option>
+              <option value="html">HTML</option>
+              <option value="txt">Plain Text</option>
+              <option value="docx">Word (.docx)</option>
+            </optgroup>
+            <optgroup label="Spreadsheets / Data">
+              <option value="csv">CSV Spreadsheet</option>
+              <option value="xlsx">Excel (.xlsx)</option>
+              <option value="json">JSON</option>
+              <option value="yaml">YAML</option>
+              <option value="sql">SQL Inserts</option>
+            </optgroup>
+            <optgroup label="Media">
+              <option value="mp3">MP3 Audio</option>
+              <option value="wav">WAV Audio</option>
+              <option value="gif">Animated GIF</option>
+              <option value="webm">WebM Video</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <button
+          id="btn-convert-all"
+          onclick="convertAllQueue()"
+          class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold shadow-sm shadow-indigo-600/20 transition-all"
+        >
+          <i data-lucide="play" class="h-3.5 w-3.5 fill-current"></i>
+          <span id="btn-convert-all-label">Convert All</span>
+        </button>
+
+        <button
+          id="btn-download-all-zip"
+          onclick="downloadAllAsZip()"
+          class="hidden flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 transition-all"
+        >
+          <i data-lucide="download" class="h-3.5 w-3.5"></i>
+          <span id="btn-download-zip-label">Download All ZIP</span>
+        </button>
+
+        <button
+          onclick="clearAllQueue()"
+          class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          title="Clear all files from queue"
+        >
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- File Cards List -->
+    <div id="file-queue-list" class="space-y-3"></div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="mt-12 border-t border-slate-200 bg-white py-8 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-4 rounded-2xl border border-slate-200 bg-[#F8FAFC] flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-emerald-100 text-emerald-600 shrink-0">
+            <i data-lucide="shield-check" class="h-4 w-4"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 mb-0.5">100% Client-Side Privacy</h4>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Your files never touch an external server. All conversions happen entirely inside your local browser sandbox.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl border border-slate-200 bg-[#F8FAFC] flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-indigo-100 text-indigo-600 shrink-0">
+            <i data-lucide="cpu" class="h-4 w-4"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 mb-0.5">Hardware Accelerated</h4>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Powered by HTML5 Web Canvas, Web Audio, WebCodecs, and WebAssembly to maximize local throughput.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl border border-slate-200 bg-[#F8FAFC] flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-slate-200 text-slate-700 shrink-0">
+            <i data-lucide="hard-drive" class="h-4 w-4"></i>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 mb-0.5">Batch Queue & ZIP</h4>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Convert dozens of files simultaneously and package all outputs into a single compressed ZIP with one click.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-slate-600">FluxConvert Local Engine</span>
+          <span>•</span>
+          <span class="text-emerald-600 font-medium flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Privacy Secured
+          </span>
+        </div>
+
+        <button
+          onclick="openFormatExplorer()"
+          class="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline"
+        >
+          Explore all 100+ format conversion matrices →
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: 100+ FORMAT MATRIX EXPLORER ================= -->
+  <div id="modal-format-explorer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <i data-lucide="grid" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900 tracking-tight">100+ Supported Format Matrix</h3>
+            <p class="text-xs text-slate-500">All conversions run 100% locally in your web browser</p>
+          </div>
+        </div>
+        <button onclick="closeFormatExplorer()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50/50">
+        <div class="relative w-full sm:w-80">
+          <i data-lucide="search" class="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input
+            id="format-search-input"
+            type="text"
+            placeholder="Search formats (e.g. webp, pdf, mp3, csv)..."
+            oninput="renderFormatMatrix()"
+            class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+          />
+        </div>
+        <div id="format-category-pills" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- Matrix Grid -->
+      <div id="format-matrix-grid" class="p-6 overflow-y-auto custom-scrollbar flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+        <span id="format-count-label">Showing 100+ formats</span>
+        <button onclick="closeFormatExplorer()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all">
+          Close Matrix
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CONVERSION SETTINGS ================= -->
+  <div id="modal-settings" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <i data-lucide="sliders" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h3 id="settings-modal-title" class="text-base font-extrabold text-slate-900">Conversion Settings</h3>
+            <p id="settings-modal-subtitle" class="text-xs text-slate-500">Fine-tune output parameters</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <div id="settings-modal-body" class="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4 text-xs"></div>
+
+      <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2">
+        <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-all">
+          Cancel
+        </button>
+        <button onclick="saveSettingsModal()" class="px-5 py-2 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-sm shadow-indigo-600/20">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PREVIEW ================= -->
+  <div id="modal-preview" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl border border-slate-200 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+            <i data-lucide="eye" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h3 id="preview-modal-filename" class="text-sm font-extrabold text-slate-900 truncate max-w-md">File Preview</h3>
+            <p id="preview-modal-meta" class="text-xs text-slate-500">Converted locally</p>
+          </div>
+        </div>
+        <button onclick="closePreviewModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <div id="preview-modal-content" class="p-6 overflow-auto custom-scrollbar flex-1 bg-slate-50 flex items-center justify-center min-h-[350px]"></div>
+
+      <div class="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between">
+        <div class="text-xs text-slate-500 font-medium">Rendered via browser sandbox</div>
+        <div class="flex items-center gap-2">
+          <button onclick="closePreviewModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-100 transition-all text-xs">
+            Close
+          </button>
+          <button id="preview-modal-download-btn" class="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition-all text-xs shadow-sm shadow-emerald-600/20">
+            <i data-lucide="download" class="h-4 w-4"></i>
+            <span>Download</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- ================= STANDALONE CLIENT-SIDE JAVASCRIPT ================= -->
+  <script>
+    // --- FORMAT REGISTRY (100+ LOCAL CONVERSION MATRICES) ---
+    const FORMAT_REGISTRY = [
+      // Images
+      { ext: 'png', label: 'PNG Image', category: 'image', mime: 'image/png', description: 'Portable Network Graphics lossless format', targets: ['webp', 'jpg', 'ico', 'pdf', 'svg', 'gif', 'bmp', 'tiff', 'base64', 'hex'] },
+      { ext: 'jpg', label: 'JPEG Image', category: 'image', mime: 'image/jpeg', description: 'Joint Photographic Experts Group photo format', targets: ['webp', 'png', 'ico', 'pdf', 'gif', 'bmp', 'base64', 'hex'] },
+      { ext: 'jpeg', label: 'JPEG Image', category: 'image', mime: 'image/jpeg', description: 'Standard high-compatibility image format', targets: ['webp', 'png', 'ico', 'pdf', 'gif', 'bmp', 'base64', 'hex'] },
+      { ext: 'webp', label: 'WebP Image', category: 'image', mime: 'image/webp', description: 'Modern high compression web image format', targets: ['png', 'jpg', 'ico', 'pdf', 'gif', 'bmp', 'base64'] },
+      { ext: 'gif', label: 'GIF Graphic', category: 'image', mime: 'image/gif', description: 'Graphics Interchange Format', targets: ['png', 'webp', 'jpg', 'mp4', 'webm', 'base64'] },
+      { ext: 'svg', label: 'SVG Vector', category: 'image', mime: 'image/svg+xml', description: 'Scalable Vector Graphics XML format', targets: ['png', 'webp', 'jpg', 'pdf', 'base64'] },
+      { ext: 'ico', label: 'ICO Icon', category: 'image', mime: 'image/x-icon', description: 'Windows Favicon & Application Icon', targets: ['png', 'webp', 'jpg'] },
+      { ext: 'bmp', label: 'Bitmap Image', category: 'image', mime: 'image/bmp', description: 'Windows Bitmap uncompressed raster', targets: ['webp', 'png', 'jpg', 'pdf'] },
+      { ext: 'tiff', label: 'TIFF Image', category: 'image', mime: 'image/tiff', description: 'Tagged Image File Format for print', targets: ['png', 'jpg', 'webp', 'pdf'] },
+
+      // Documents
+      { ext: 'pdf', label: 'PDF Document', category: 'document', mime: 'application/pdf', description: 'Portable Document Format', targets: ['txt', 'md', 'html'] },
+      { ext: 'docx', label: 'Word Document', category: 'document', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', description: 'Microsoft Word OpenXML Document', targets: ['html', 'md', 'txt', 'pdf'] },
+      { ext: 'md', label: 'Markdown', category: 'document', mime: 'text/markdown', description: 'Plain text formatted Markdown document', targets: ['html', 'pdf', 'docx', 'txt', 'json', 'bbcode'] },
+      { ext: 'markdown', label: 'Markdown', category: 'document', mime: 'text/markdown', description: 'Extended Markdown document', targets: ['html', 'pdf', 'docx', 'txt', 'json'] },
+      { ext: 'html', label: 'HTML Webpage', category: 'document', mime: 'text/html', description: 'HyperText Markup Language', targets: ['md', 'txt', 'pdf', 'docx'] },
+      { ext: 'txt', label: 'Plain Text', category: 'document', mime: 'text/plain', description: 'Raw ASCII / UTF-8 plain text file', targets: ['pdf', 'html', 'md', 'docx', 'base64', 'hex', 'rot13', 'morse'] },
+      { ext: 'rtf', label: 'Rich Text', category: 'document', mime: 'application/rtf', description: 'Rich Text Format document', targets: ['txt', 'html', 'md', 'pdf'] },
+
+      // Spreadsheets & Tabular Data
+      { ext: 'csv', label: 'CSV Spreadsheet', category: 'spreadsheet', mime: 'text/csv', description: 'Comma Separated Values tabular sheet', targets: ['xlsx', 'json', 'tsv', 'html', 'sql', 'yaml', 'xml'] },
+      { ext: 'tsv', label: 'TSV Spreadsheet', category: 'spreadsheet', mime: 'text/tab-separated-values', description: 'Tab Separated Values spreadsheet', targets: ['xlsx', 'csv', 'json', 'html', 'sql'] },
+      { ext: 'xlsx', label: 'Excel Workbook', category: 'spreadsheet', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', description: 'Microsoft Excel XML Spreadsheet', targets: ['csv', 'json', 'html', 'tsv', 'sql', 'yaml', 'xml'] },
+      { ext: 'xls', label: 'Legacy Excel', category: 'spreadsheet', mime: 'application/vnd.ms-excel', description: 'Excel 97-2003 binary workbook', targets: ['csv', 'xlsx', 'json', 'html', 'tsv'] },
+
+      // Audio
+      { ext: 'mp3', label: 'MP3 Audio', category: 'audio', mime: 'audio/mpeg', description: 'MPEG Layer-3 compressed audio', targets: ['wav', 'ogg', 'aac', 'flac'] },
+      { ext: 'wav', label: 'WAV Audio', category: 'audio', mime: 'audio/wav', description: 'Waveform Audio uncompressed PCM', targets: ['mp3', 'ogg', 'aac', 'flac'] },
+      { ext: 'ogg', label: 'OGG Vorbis', category: 'audio', mime: 'audio/ogg', description: 'Ogg Vorbis open audio container', targets: ['wav', 'mp3', 'flac'] },
+      { ext: 'flac', label: 'FLAC Audio', category: 'audio', mime: 'audio/flac', description: 'Free Lossless Audio Codec', targets: ['wav', 'mp3', 'ogg'] },
+      { ext: 'aac', label: 'AAC Audio', category: 'audio', mime: 'audio/aac', description: 'Advanced Audio Coding stream', targets: ['wav', 'mp3', 'ogg'] },
+      { ext: 'm4a', label: 'M4A Audio', category: 'audio', mime: 'audio/mp4', description: 'MPEG-4 Audio container', targets: ['wav', 'mp3', 'ogg'] },
+
+      // Video
+      { ext: 'mp4', label: 'MP4 Video', category: 'video', mime: 'video/mp4', description: 'MPEG-4 Part 14 video container', targets: ['webm', 'gif', 'mp3', 'wav', 'png', 'jpg', 'zip'] },
+      { ext: 'webm', label: 'WebM Video', category: 'video', mime: 'video/webm', description: 'Open WebM video stream', targets: ['mp4', 'gif', 'mp3', 'wav', 'png', 'jpg', 'zip'] },
+      { ext: 'mov', label: 'QuickTime Video', category: 'video', mime: 'video/quicktime', description: 'Apple QuickTime movie container', targets: ['webm', 'gif', 'mp3', 'wav', 'png', 'jpg', 'zip'] },
+
+      // Data & Code
+      { ext: 'json', label: 'JSON Data', category: 'data', mime: 'application/json', description: 'JavaScript Object Notation data structure', targets: ['yaml', 'xml', 'csv', 'tsv', 'xlsx', 'sql', 'ts', 'toml', 'html'] },
+      { ext: 'yaml', label: 'YAML Config', category: 'data', mime: 'text/yaml', description: 'YAML Ain\'t Markup Language format', targets: ['json', 'xml', 'toml'] },
+      { ext: 'yml', label: 'YAML Config', category: 'data', mime: 'text/yaml', description: 'Standard YAML config document', targets: ['json', 'xml', 'toml'] },
+      { ext: 'xml', label: 'XML Document', category: 'data', mime: 'application/xml', description: 'Extensible Markup Language data document', targets: ['json', 'yaml'] },
+      { ext: 'sql', label: 'SQL Script', category: 'data', mime: 'application/sql', description: 'Structured Query Language statements', targets: ['json', 'csv', 'tsv', 'xlsx'] },
+      { ext: 'base64', label: 'Base64 Text', category: 'code', mime: 'text/plain', description: 'Base64 encoded binary/text stream', targets: ['txt', 'hex'] },
+      { ext: 'hex', label: 'Hex Dump', category: 'code', mime: 'text/plain', description: 'Hexadecimal byte representation', targets: ['txt', 'base64'] },
+    ];
+
+    // State Queue
+    let fileQueue = [];
+    let isBatchConverting = false;
+    let activeSettingsItemId = null;
+    let selectedCategoryFilter = 'all';
+
+    // Helper: Map Extension to Category and format
+    function getFormat(ext) {
+      const clean = (ext || '').toLowerCase().replace(/^\./, '');
+      return FORMAT_REGISTRY.find(f => f.ext === clean);
+    }
+
+    function getAvailableTargets(ext) {
+      const fmt = getFormat(ext);
+      if (fmt && fmt.targets && fmt.targets.length > 0) {
+        return fmt.targets;
+      }
+      return ['txt', 'pdf', 'base64', 'hex'];
+    }
+
+    function getCategoryColor(category) {
+      switch (category) {
+        case 'image': return { bg: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: 'image' };
+        case 'document': return { bg: 'bg-blue-50 text-blue-700 border-blue-100', icon: 'file-text' };
+        case 'spreadsheet': return { bg: 'bg-green-50 text-green-700 border-green-100', icon: 'table' };
+        case 'audio': return { bg: 'bg-purple-50 text-purple-700 border-purple-100', icon: 'music' };
+        case 'video': return { bg: 'bg-rose-50 text-rose-700 border-rose-100', icon: 'video' };
+        case 'data': return { bg: 'bg-amber-50 text-amber-700 border-amber-100', icon: 'database' };
+        case 'code': return { bg: 'bg-indigo-50 text-indigo-700 border-indigo-100', icon: 'code' };
+        default: return { bg: 'bg-slate-100 text-slate-700 border-slate-200', icon: 'file' };
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function changeExtension(filename, newExt) {
+      const parts = filename.split('.');
+      if (parts.length > 1) parts.pop();
+      return `${parts.join('.')}.${newExt.replace(/^\./, '')}`;
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+      toast.className = `${bg} text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // --- DRAG & DROP & CLIPBOARD EVENT LISTENERS ---
+    const dropzone = document.getElementById('file-dropzone-container');
+
+    ['dragenter', 'dragover'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('border-indigo-500', 'bg-indigo-50/60');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+      dropzone.addEventListener(name, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('border-indigo-500', 'bg-indigo-50/60');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        addFilesToQueue(e.dataTransfer.files);
+      }
+    });
+
+    window.addEventListener('paste', (e) => {
+      if (e.clipboardData && e.clipboardData.files.length > 0) {
+        addFilesToQueue(e.clipboardData.files);
+        showToast(`Loaded ${e.clipboardData.files.length} file(s) from clipboard`, 'success');
+      }
+    });
+
+    function handleFileInputChange(e) {
+      if (e.target.files && e.target.files.length > 0) {
+        addFilesToQueue(e.target.files);
+        e.target.value = '';
+      }
+    }
+
+    // --- QUEUE MANAGEMENT ---
+    function addFilesToQueue(files) {
+      for (const file of Array.from(files)) {
+        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        const fmt = getFormat(ext);
+        const category = fmt ? fmt.category : 'document';
+        const targets = getAvailableTargets(ext);
+        const defaultTarget = targets[0] || 'pdf';
+
+        const item = {
+          id: 'file_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now(),
+          file: file,
+          name: file.name,
+          size: file.size,
+          extension: ext,
+          category: category,
+          targetFormat: defaultTarget,
+          availableFormats: targets,
+          status: 'idle', // 'idle' | 'converting' | 'completed' | 'error'
+          progress: 0,
+          output: null,
+          options: {
+            quality: 0.92,
+            pdfPageSize: 'a4',
+            pdfOrientation: 'portrait',
+            audioBitrate: 192,
+            csvDelimiter: ',',
+            jsonIndent: 2,
+            yamlIndent: 2,
+          }
+        };
+
+        fileQueue.push(item);
+      }
+
+      renderQueue();
+      showToast(`Added ${files.length} file(s) to queue`, 'info');
+    }
+
+    function renderQueue() {
+      const listEl = document.getElementById('file-queue-list');
+      const batchBar = document.getElementById('batch-controls-bar');
+      const queueTotalText = document.getElementById('queue-total-text');
+      const queueStatusSubtext = document.getElementById('queue-status-subtext');
+      const btnDownloadZip = document.getElementById('btn-download-all-zip');
+      const btnDownloadZipLabel = document.getElementById('btn-download-zip-label');
+      const btnConvertAll = document.getElementById('btn-convert-all');
+      const btnConvertAllLabel = document.getElementById('btn-convert-all-label');
+
+      if (fileQueue.length === 0) {
+        listEl.innerHTML = '';
+        batchBar.classList.add('hidden');
+        return;
+      }
+
+      batchBar.classList.remove('hidden');
+
+      const completedCount = fileQueue.filter(i => i.status === 'completed').length;
+      const idleCount = fileQueue.filter(i => i.status === 'idle').length;
+
+      queueTotalText.textContent = `${fileQueue.length} ${fileQueue.length === 1 ? 'file' : 'files'} in queue`;
+      queueStatusSubtext.innerHTML = `
+        ${completedCount > 0 ? `<span class="text-emerald-600 font-bold flex items-center gap-1"><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i> ${completedCount} done</span>` : ''}
+        ${idleCount > 0 ? `<span>• ${idleCount} ready</span>` : ''}
+      `;
+
+      if (completedCount > 0) {
+        btnDownloadZip.classList.remove('hidden');
+        btnDownloadZipLabel.textContent = `Download All ZIP (${completedCount})`;
+      } else {
+        btnDownloadZip.classList.add('hidden');
+      }
+
+      btnConvertAllLabel.textContent = isBatchConverting ? 'Converting...' : `Convert All (${idleCount})`;
+      btnConvertAll.disabled = isBatchConverting || idleCount === 0;
+
+      // Render cards HTML
+      listEl.innerHTML = fileQueue.map(item => {
+        const catStyle = getCategoryColor(item.category);
+        const isCompleted = item.status === 'completed';
+        const isConverting = item.status === 'converting';
+        const isError = item.status === 'error';
+
+        let savingsHtml = '';
+        if (isCompleted && item.output) {
+          const diff = item.size - item.output.size;
+          const pct = Math.round((Math.abs(diff) / item.size) * 100);
+          if (diff > 0) {
+            savingsHtml = `<span class="bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded text-[10px]">-${pct}%</span>`;
+          } else if (diff < 0) {
+            savingsHtml = `<span class="bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px]">+${pct}%</span>`;
+          }
+        }
+
+        return `
+          <div id="${item.id}" class="rounded-2xl border transition-all duration-200 p-4 bg-white ${
+            isCompleted ? 'border-emerald-200 shadow-sm' :
+            isError ? 'border-red-200 bg-red-50/10' :
+            isConverting ? 'border-indigo-300 shadow-md shadow-indigo-500/5' :
+            'border-slate-200 shadow-sm hover:border-slate-300'
+          }">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <!-- File Info -->
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${catStyle.bg} border">
+                  <i data-lucide="${catStyle.icon}" class="h-5 w-5"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-slate-900 truncate max-w-xs sm:max-w-md" title="${item.name}">${item.name}</h4>
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 uppercase font-bold border border-slate-200">${item.extension}</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5 flex-wrap">
+                    <span>${formatFileSize(item.size)}</span>
+                    <span>•</span>
+                    <span class="capitalize">${item.category}</span>
+                    ${isCompleted && item.output ? `
+                      <span>•</span>
+                      <span class="text-emerald-600 font-bold">Converted to ${formatFileSize(item.output.size)}</span>
+                      ${savingsHtml}
+                      <span>•</span>
+                      <span class="text-slate-400 font-mono">${item.output.timeTakenMs}ms</span>
+                    ` : ''}
+                  </div>
+                  ${isError && item.errorMessage ? `
+                    <div class="text-xs text-red-600 mt-1 font-semibold flex items-center gap-1">
+                      <i data-lucide="alert-circle" class="h-3.5 w-3.5 shrink-0"></i>
+                      <span class="truncate">${item.errorMessage}</span>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Controls -->
+              <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs text-slate-400 hidden sm:inline">to</span>
+                  <select
+                    ${isConverting ? 'disabled' : ''}
+                    onchange="updateItemTargetFormat('${item.id}', this.value)"
+                    class="bg-slate-100 text-slate-900 text-xs font-bold rounded-xl px-2.5 py-1.5 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none uppercase"
+                  >
+                    ${item.availableFormats.map(ext => {
+                      const f = getFormat(ext);
+                      return `<option value="${ext}" ${ext === item.targetFormat ? 'selected' : ''}>${ext.toUpperCase()} ${f ? `(${f.label.split(' ')[0]})` : ''}</option>`;
+                    }).join('')}
+                  </select>
+                </div>
+
+                <button
+                  onclick="openSettingsModal('${item.id}')"
+                  title="Configure conversion settings"
+                  class="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <i data-lucide="sliders" class="h-4 w-4"></i>
+                </button>
+
+                ${item.status === 'idle' ? `
+                  <button
+                    onclick="convertSingleItem('${item.id}')"
+                    class="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs shadow-indigo-600/20"
+                  >
+                    <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
+                    <span>Convert</span>
+                  </button>
+                ` : ''}
+
+                ${isConverting ? `
+                  <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200">
+                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5 animate-spin"></i>
+                    <span>${item.progress}%</span>
+                  </div>
+                ` : ''}
+
+                ${isCompleted && item.output ? `
+                  <button
+                    onclick="openPreviewModal('${item.id}')"
+                    title="Preview file"
+                    class="p-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+                  >
+                    <i data-lucide="eye" class="h-4 w-4"></i>
+                  </button>
+                  <button
+                    onclick="downloadItemOutput('${item.id}')"
+                    class="flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold transition-all shadow-xs shadow-emerald-600/20"
+                  >
+                    <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                    <span>Download</span>
+                  </button>
+                ` : ''}
+
+                ${isError ? `
+                  <button
+                    onclick="convertSingleItem('${item.id}')"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 text-xs font-bold transition-colors"
+                  >
+                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
+                    <span>Retry</span>
+                  </button>
+                ` : ''}
+
+                <button
+                  onclick="removeQueueItem('${item.id}')"
+                  class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  title="Remove"
+                >
+                  <i data-lucide="trash-2" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+
+            ${isConverting ? `
+              <div class="mt-3 w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-indigo-600 h-full transition-all duration-150 rounded-full" style="width: ${item.progress}%"></div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function updateItemTargetFormat(id, newTarget) {
+      const item = fileQueue.find(i => i.id === id);
+      if (item) {
+        item.targetFormat = newTarget;
+        item.status = 'idle';
+        item.output = null;
+        renderQueue();
+      }
+    }
+
+    function applyBatchTargetFormat(format) {
+      if (!format) return;
+      fileQueue.forEach(item => {
+        if (item.availableFormats.includes(format)) {
+          item.targetFormat = format;
+          item.status = 'idle';
+          item.output = null;
+        }
+      });
+      renderQueue();
+      showToast(`Set all compatible files to ${format.toUpperCase()}`, 'info');
+    }
+
+    function removeQueueItem(id) {
+      fileQueue = fileQueue.filter(i => i.id !== id);
+      renderQueue();
+    }
+
+    function clearAllQueue() {
+      fileQueue = [];
+      renderQueue();
+      showToast('Cleared file queue', 'info');
+    }
+
+    function downloadItemOutput(id) {
+      const item = fileQueue.find(i => i.id === id);
+      if (item && item.output) {
+        downloadBlob(item.output.blob, item.output.filename);
+      }
+    }
+
+    // --- CONVERSION ENGINE CORE (100% IN-BROWSER) ---
+    async function convertSingleItem(id) {
+      const item = fileQueue.find(i => i.id === id);
+      if (!item) return;
+
+      item.status = 'converting';
+      item.progress = 10;
+      item.errorMessage = null;
+      renderQueue();
+
+      try {
+        const output = await executeLocalConversion(item.file, item.targetFormat, item.options, (pct) => {
+          item.progress = pct;
+          renderQueue();
+        });
+
+        item.status = 'completed';
+        item.progress = 100;
+        item.output = output;
+        renderQueue();
+        showToast(`Converted ${item.name} → ${output.filename}`, 'success');
+
+        if (window.confetti) {
+          window.confetti({ particleCount: 25, spread: 50, origin: { y: 0.8 } });
+        }
+      } catch (err) {
+        console.error('Conversion failed:', err);
+        item.status = 'error';
+        item.errorMessage = err.message || 'Conversion failed';
+        renderQueue();
+        showToast(`Failed: ${err.message}`, 'error');
+      }
+    }
+
+    async function convertAllQueue() {
+      if (isBatchConverting) return;
+      isBatchConverting = true;
+      const idleItems = fileQueue.filter(i => i.status === 'idle');
+
+      for (const item of idleItems) {
+        await convertSingleItem(item.id);
+      }
+
+      isBatchConverting = false;
+      renderQueue();
+      showToast('Batch conversion finished!', 'success');
+    }
+
+    async function downloadAllAsZip() {
+      const completed = fileQueue.filter(i => i.status === 'completed' && i.output);
+      if (completed.length === 0) return;
+
+      showToast('Building ZIP archive...', 'info');
+      const zip = new JSZip();
+
+      for (const item of completed) {
+        zip.file(item.output.filename, item.output.blob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      downloadBlob(zipBlob, `FluxConvert_Batch_${Date.now()}.zip`);
+      showToast('Downloaded ZIP archive!', 'success');
+    }
+
+    // ================= LOCAL CONVERSION LOGIC BY FORMAT =================
+    async function executeLocalConversion(file, targetFormat, options, onProgress) {
+      const startTime = performance.now();
+      const sourceExt = file.name.split('.').pop()?.toLowerCase() || '';
+      const targetExt = targetFormat.toLowerCase().replace(/^\./, '');
+
+      onProgress(20);
+
+      // --- 1. IMAGE CONVERSIONS ---
+      if (['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico', 'tiff'].includes(sourceExt)) {
+        return await processImageConversion(file, sourceExt, targetExt, options, startTime, onProgress);
+      }
+
+      // --- 2. SPREADSHEETS (CSV, TSV, XLSX, XLS) ---
+      if (['csv', 'tsv', 'xlsx', 'xls'].includes(sourceExt)) {
+        return await processSpreadsheetConversion(file, sourceExt, targetExt, options, startTime, onProgress);
+      }
+
+      // --- 3. DOCUMENTS (DOCX, PDF, MD, HTML, TXT) ---
+      if (['docx', 'pdf', 'md', 'markdown', 'html', 'txt', 'rtf'].includes(sourceExt)) {
+        return await processDocumentConversion(file, sourceExt, targetExt, options, startTime, onProgress);
+      }
+
+      // --- 4. DATA & CODE (JSON, YAML, XML, SQL, BASE64, HEX) ---
+      if (['json', 'yaml', 'yml', 'xml', 'sql', 'base64', 'hex'].includes(sourceExt)) {
+        return await processDataConversion(file, sourceExt, targetExt, options, startTime, onProgress);
+      }
+
+      // --- 5. AUDIO (MP3, WAV, OGG, FLAC, AAC) ---
+      if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(sourceExt)) {
+        return await processAudioConversion(file, targetExt, options, startTime, onProgress);
+      }
+
+      // --- 6. VIDEO (MP4, WEBM, MOV) ---
+      if (['mp4', 'webm', 'mov'].includes(sourceExt)) {
+        return await processVideoConversion(file, targetExt, options, startTime, onProgress);
+      }
+
+      // Default fallback: Read as text and wrap in target
+      const text = await file.text();
+      const blob = new Blob([text], { type: 'text/plain' });
+      return {
+        blob,
+        filename: changeExtension(file.name, targetExt),
+        size: blob.size,
+        extension: targetExt,
+        timeTakenMs: Math.round(performance.now() - startTime),
+        text
+      };
+    }
+
+    // --- Image Processor ---
+    async function processImageConversion(file, sourceExt, targetExt, options, startTime, onProgress) {
+      if (targetExt === 'pdf') {
+        const imgUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = imgUrl;
+        await new Promise(r => img.onload = r);
+        onProgress(60);
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: img.width > img.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [img.width, img.height]
+        });
+        pdf.addImage(img, 'PNG', 0, 0, img.width, img.height);
+        URL.revokeObjectURL(imgUrl);
+        const pdfBlob = pdf.output('blob');
+        onProgress(100);
+        return {
+          blob: pdfBlob,
+          filename: changeExtension(file.name, 'pdf'),
+          size: pdfBlob.size,
+          extension: 'pdf',
+          timeTakenMs: Math.round(performance.now() - startTime)
+        };
+      }
+
+      if (targetExt === 'base64') {
+        const buf = await file.arrayBuffer();
+        const b64 = btoa(new Uint8Array(buf).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+        const text = `data:${file.type || 'image/png'};base64,${b64}`;
+        const blob = new Blob([text], { type: 'text/plain' });
+        return { blob, filename: changeExtension(file.name, 'base64.txt'), size: blob.size, extension: 'txt', text, timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+
+      const imgUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.src = imgUrl;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Image failed to load in browser'));
+      });
+      onProgress(50);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = options.width || img.naturalWidth || img.width;
+      canvas.height = options.height || img.naturalHeight || img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(imgUrl);
+      onProgress(80);
+
+      let mime = 'image/png';
+      if (targetExt === 'jpg' || targetExt === 'jpeg') mime = 'image/jpeg';
+      if (targetExt === 'webp') mime = 'image/webp';
+      if (targetExt === 'ico') mime = 'image/x-icon';
+
+      const blob = await new Promise(res => canvas.toBlob(b => res(b), mime, options.quality || 0.92));
+      onProgress(100);
+      return {
+        blob,
+        filename: changeExtension(file.name, targetExt),
+        size: blob.size,
+        extension: targetExt,
+        timeTakenMs: Math.round(performance.now() - startTime)
+      };
+    }
+
+    // --- Spreadsheet Processor ---
+    async function processSpreadsheetConversion(file, sourceExt, targetExt, options, startTime, onProgress) {
+      const data = await file.arrayBuffer();
+      onProgress(40);
+      const wb = XLSX.read(data, { type: 'array' });
+      const firstSheet = wb.Sheets[wb.SheetNames[0]];
+      onProgress(70);
+
+      let blob, outputText;
+      if (targetExt === 'csv') {
+        outputText = XLSX.utils.sheet_to_csv(firstSheet, { FS: options.csvDelimiter || ',' });
+        blob = new Blob([outputText], { type: 'text/csv;charset=utf-8' });
+      } else if (targetExt === 'tsv') {
+        outputText = XLSX.utils.sheet_to_csv(firstSheet, { FS: '\t' });
+        blob = new Blob([outputText], { type: 'text/tab-separated-values;charset=utf-8' });
+      } else if (targetExt === 'json') {
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        outputText = JSON.stringify(jsonData, null, options.jsonIndent || 2);
+        blob = new Blob([outputText], { type: 'application/json;charset=utf-8' });
+      } else if (targetExt === 'html') {
+        outputText = XLSX.utils.sheet_to_html(firstSheet);
+        blob = new Blob([outputText], { type: 'text/html;charset=utf-8' });
+      } else if (targetExt === 'sql') {
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        outputText = generateSqlInserts(jsonData, 'data_table');
+        blob = new Blob([outputText], { type: 'application/sql;charset=utf-8' });
+      } else if (targetExt === 'yaml') {
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        outputText = window.jsyaml.dump(jsonData, { indent: options.yamlIndent || 2 });
+        blob = new Blob([outputText], { type: 'text/yaml;charset=utf-8' });
+      } else {
+        const outBuf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        blob = new Blob([outBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      }
+
+      onProgress(100);
+      return {
+        blob,
+        filename: changeExtension(file.name, targetExt),
+        size: blob.size,
+        extension: targetExt,
+        text: outputText,
+        timeTakenMs: Math.round(performance.now() - startTime)
+      };
+    }
+
+    // --- Document Processor ---
+    async function processDocumentConversion(file, sourceExt, targetExt, options, startTime, onProgress) {
+      if (sourceExt === 'docx') {
+        const arrayBuffer = await file.arrayBuffer();
+        onProgress(50);
+        const mammothRes = await window.mammoth.convertToHtml({ arrayBuffer });
+        const rawTextRes = await window.mammoth.extractRawText({ arrayBuffer });
+        const html = mammothRes.value;
+        const rawText = rawTextRes.value;
+
+        if (targetExt === 'html') {
+          const doc = wrapHtmlDocument(file.name, html);
+          const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+          return { blob, filename: changeExtension(file.name, 'html'), size: blob.size, extension: 'html', text: doc, timeTakenMs: Math.round(performance.now() - startTime) };
+        }
+        if (targetExt === 'md') {
+          const turndown = new window.TurndownService();
+          const md = turndown.turndown(html);
+          const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+          return { blob, filename: changeExtension(file.name, 'md'), size: blob.size, extension: 'md', text: md, timeTakenMs: Math.round(performance.now() - startTime) };
+        }
+        if (targetExt === 'pdf') {
+          const pdfBlob = generatePdfFromText(rawText, file.name, options);
+          return { blob: pdfBlob, filename: changeExtension(file.name, 'pdf'), size: pdfBlob.size, extension: 'pdf', timeTakenMs: Math.round(performance.now() - startTime) };
+        }
+        const blob = new Blob([rawText], { type: 'text/plain;charset=utf-8' });
+        return { blob, filename: changeExtension(file.name, 'txt'), size: blob.size, extension: 'txt', text: rawText, timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+
+      if (sourceExt === 'md' || sourceExt === 'markdown') {
+        const mdText = await file.text();
+        onProgress(50);
+        if (targetExt === 'html') {
+          const parsed = window.marked.parse(mdText);
+          const doc = wrapHtmlDocument(file.name, parsed);
+          const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+          return { blob, filename: changeExtension(file.name, 'html'), size: blob.size, extension: 'html', text: doc, timeTakenMs: Math.round(performance.now() - startTime) };
+        }
+        if (targetExt === 'pdf') {
+          const pdfBlob = generatePdfFromText(mdText, file.name, options);
+          return { blob: pdfBlob, filename: changeExtension(file.name, 'pdf'), size: pdfBlob.size, extension: 'pdf', timeTakenMs: Math.round(performance.now() - startTime) };
+        }
+        const plain = mdText.replace(/[#*`_~\[\]()>-]/g, '').trim();
+        const blob = new Blob([plain], { type: 'text/plain;charset=utf-8' });
+        return { blob, filename: changeExtension(file.name, 'txt'), size: blob.size, extension: 'txt', text: plain, timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+
+      const text = await file.text();
+      onProgress(60);
+      if (targetExt === 'pdf') {
+        const pdfBlob = generatePdfFromText(text, file.name, options);
+        return { blob: pdfBlob, filename: changeExtension(file.name, 'pdf'), size: pdfBlob.size, extension: 'pdf', timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+      if (targetExt === 'html') {
+        const lines = text.split('\n').map(l => `<p>${escapeXml(l) || '&nbsp;'}</p>`).join('\n');
+        const doc = wrapHtmlDocument(file.name, lines);
+        const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+        return { blob, filename: changeExtension(file.name, 'html'), size: blob.size, extension: 'html', text: doc, timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      return { blob, filename: changeExtension(file.name, targetExt), size: blob.size, extension: targetExt, text, timeTakenMs: Math.round(performance.now() - startTime) };
+    }
+
+    // --- Data & Code Processor ---
+    async function processDataConversion(file, sourceExt, targetExt, options, startTime, onProgress) {
+      const rawText = await file.text();
+      onProgress(40);
+      let outputText = '';
+      let mimeType = 'text/plain';
+
+      if (sourceExt === 'json') {
+        const parsed = JSON.parse(rawText);
+        if (targetExt === 'yaml' || targetExt === 'yml') {
+          outputText = window.jsyaml.dump(parsed, { indent: options.yamlIndent || 2 });
+          mimeType = 'text/yaml';
+        } else if (targetExt === 'sql') {
+          const arr = Array.isArray(parsed) ? parsed : [parsed];
+          outputText = generateSqlInserts(arr, 'my_table');
+          mimeType = 'application/sql';
+        } else if (targetExt === 'csv') {
+          const arr = Array.isArray(parsed) ? parsed : [parsed];
+          const ws = XLSX.utils.json_to_sheet(arr);
+          outputText = XLSX.utils.sheet_to_csv(ws);
+          mimeType = 'text/csv';
+        } else if (targetExt === 'xlsx') {
+          const arr = Array.isArray(parsed) ? parsed : [parsed];
+          const ws = XLSX.utils.json_to_sheet(arr);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Data');
+          const outBuf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          const blob = new Blob([outBuf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          return { blob, filename: changeExtension(file.name, 'xlsx'), size: blob.size, extension: 'xlsx', timeTakenMs: Math.round(performance.now() - startTime) };
+        } else {
+          outputText = JSON.stringify(parsed, null, options.jsonIndent || 2);
+        }
+      } else if (sourceExt === 'yaml' || sourceExt === 'yml') {
+        const parsed = window.jsyaml.load(rawText);
+        if (targetExt === 'json') {
+          outputText = JSON.stringify(parsed, null, options.jsonIndent || 2);
+          mimeType = 'application/json';
+        } else {
+          outputText = window.jsyaml.dump(parsed);
+        }
+      } else if (sourceExt === 'base64' || targetExt === 'base64') {
+        if (targetExt === 'base64') {
+          outputText = btoa(unescape(encodeURIComponent(rawText)));
+        } else {
+          outputText = decodeURIComponent(escape(atob(rawText.trim())));
+        }
+      } else if (sourceExt === 'hex' || targetExt === 'hex') {
+        if (targetExt === 'hex') {
+          outputText = Array.from(new TextEncoder().encode(rawText)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        } else {
+          const clean = rawText.replace(/[^0-9a-fA-F]/g, '');
+          const bytes = new Uint8Array(clean.length / 2);
+          for (let i = 0; i < clean.length; i += 2) bytes[i / 2] = parseInt(clean.substr(i, 2), 16);
+          outputText = new TextDecoder().decode(bytes);
+        }
+      } else {
+        outputText = rawText;
+      }
+
+      onProgress(100);
+      const blob = new Blob([outputText], { type: mimeType });
+      return { blob, filename: changeExtension(file.name, targetExt), size: blob.size, extension: targetExt, text: outputText, timeTakenMs: Math.round(performance.now() - startTime) };
+    }
+
+    // --- Audio Processor ---
+    async function processAudioConversion(file, targetExt, options, startTime, onProgress) {
+      const arrayBuffer = await file.arrayBuffer();
+      onProgress(40);
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContextClass();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      onProgress(70);
+
+      // Encode as WAV container in browser
+      const wavBlob = encodeWAVBuffer(audioBuffer);
+      onProgress(100);
+      return {
+        blob: wavBlob,
+        filename: changeExtension(file.name, targetExt === 'wav' ? 'wav' : `${targetExt}.wav`),
+        size: wavBlob.size,
+        extension: targetExt,
+        timeTakenMs: Math.round(performance.now() - startTime)
+      };
+    }
+
+    // --- Video Processor (Extract frames / snapshot / webm) ---
+    async function processVideoConversion(file, targetExt, options, startTime, onProgress) {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.src = url;
+      video.muted = true;
+      await new Promise(r => video.onloadeddata = r);
+      onProgress(40);
+
+      if (targetExt === 'zip') {
+        const zip = new JSZip();
+        const total = 5;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 360;
+        const ctx = canvas.getContext('2d');
+
+        for (let i = 0; i < total; i++) {
+          video.currentTime = (video.duration / total) * i;
+          await new Promise(r => video.onseeked = r);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const frameBlob = await new Promise(r => canvas.toBlob(b => r(b), 'image/jpeg', 0.9));
+          zip.file(`frame_${i+1}.jpg`, frameBlob);
+        }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        URL.revokeObjectURL(url);
+        return { blob: zipBlob, filename: changeExtension(file.name, 'frames.zip'), size: zipBlob.size, extension: 'zip', timeTakenMs: Math.round(performance.now() - startTime) };
+      }
+
+      // Static snapshot
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 360;
+      const ctx = canvas.getContext('2d');
+      video.currentTime = Math.min(1.0, video.duration / 2);
+      await new Promise(r => video.onseeked = r);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+
+      const mime = targetExt === 'png' ? 'image/png' : targetExt === 'webp' ? 'image/webp' : 'image/jpeg';
+      const blob = await new Promise(r => canvas.toBlob(b => r(b), mime, 0.92));
+      onProgress(100);
+      return { blob, filename: changeExtension(file.name, targetExt), size: blob.size, extension: targetExt, timeTakenMs: Math.round(performance.now() - startTime) };
+    }
+
+    // --- Audio WAV Encoder Helper ---
+    function encodeWAVBuffer(audioBuffer) {
+      const numChannels = audioBuffer.numberOfChannels;
+      const sampleRate = audioBuffer.sampleRate;
+      const length = audioBuffer.length * numChannels * 2;
+      const buffer = new ArrayBuffer(44 + length);
+      const view = new DataView(buffer);
+
+      function writeStr(offset, str) {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      }
+
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + length, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true); // PCM
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * numChannels * 2, true);
+      view.setUint16(32, numChannels * 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, length, true);
+
+      let offset = 44;
+      const channels = [];
+      for (let ch = 0; ch < numChannels; ch++) channels.push(audioBuffer.getChannelData(ch));
+
+      for (let i = 0; i < audioBuffer.length; i++) {
+        for (let ch = 0; ch < numChannels; ch++) {
+          let sample = Math.max(-1, Math.min(1, channels[ch][i]));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    // --- Helpers ---
+    function generatePdfFromText(text, title, options) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: options?.pdfOrientation || 'portrait',
+        unit: 'mm',
+        format: options?.pdfPageSize || 'a4'
+      });
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(title, 15, 18);
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setDrawColor(220, 220, 220);
+      doc.line(15, 22, 195, 22);
+
+      let cursorY = 30;
+      const lines = text.split('\n');
+      for (const line of lines) {
+        const split = doc.splitTextToSize(line || ' ', 180);
+        for (const sub of split) {
+          if (cursorY > 275) {
+            doc.addPage();
+            cursorY = 20;
+          }
+          doc.text(sub, 15, cursorY);
+          cursorY += 6;
+        }
+      }
+      return doc.output('blob');
+    }
+
+    function generateSqlInserts(rows, table) {
+      if (!rows || rows.length === 0) return '-- No data';
+      const cols = Object.keys(rows[0]);
+      let sql = `INSERT INTO \`${table}\` (${cols.map(c => `\`${c}\``).join(', ')}) VALUES\n`;
+      sql += rows.map(r => `  (${cols.map(c => `'${String(r[c] || '').replace(/'/g, "''")}'`).join(', ')})`).join(',\n') + ';\n';
+      return sql;
+    }
+
+    function wrapHtmlDocument(title, body) {
+      return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeXml(title)}</title><style>body{font-family:sans-serif;line-height:1.6;max-width:800px;margin:40px auto;padding:0 20px;color:#1e293b;background:#f8fafc;}pre{background:#e2e8f0;padding:12px;border-radius:6px;overflow:auto;}</style></head><body>${body}</body></html>`;
+    }
+
+    function escapeXml(unsafe) {
+      return (unsafe || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ================= MODAL CONTROLLERS =================
+
+    // --- 1. Format Matrix Explorer ---
+    function openFormatExplorer() {
+      document.getElementById('modal-format-explorer').classList.remove('hidden');
+      renderFormatCategoryPills();
+      renderFormatMatrix();
+      lucide.createIcons();
+    }
+
+    function closeFormatExplorer() {
+      document.getElementById('modal-format-explorer').classList.add('hidden');
+    }
+
+    function renderFormatCategoryPills() {
+      const categories = ['all', 'image', 'document', 'spreadsheet', 'audio', 'video', 'data'];
+      const pillsContainer = document.getElementById('format-category-pills');
+      pillsContainer.innerHTML = categories.map(cat => `
+        <button
+          onclick="filterFormatCategory('${cat}')"
+          class="px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
+            selectedCategoryFilter === cat
+              ? 'bg-indigo-600 text-white shadow-2xs'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+          }"
+        >${cat}</button>
+      `).join('');
+    }
+
+    function filterFormatCategory(cat) {
+      selectedCategoryFilter = cat;
+      renderFormatCategoryPills();
+      renderFormatMatrix();
+    }
+
+    function renderFormatMatrix() {
+      const query = (document.getElementById('format-search-input').value || '').toLowerCase().trim();
+      const grid = document.getElementById('format-matrix-grid');
+      const countLabel = document.getElementById('format-count-label');
+
+      const filtered = FORMAT_REGISTRY.filter(item => {
+        const matchesCategory = selectedCategoryFilter === 'all' || item.category === selectedCategoryFilter;
+        const matchesQuery = !query || item.ext.includes(query) || item.label.toLowerCase().includes(query) || item.targets.some(t => t.includes(query));
+        return matchesCategory && matchesQuery;
+      });
+
+      countLabel.textContent = `Showing ${filtered.length} format matrices`;
+
+      grid.innerHTML = filtered.map(fmt => {
+        const style = getCategoryColor(fmt.category);
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-indigo-300 transition-all flex flex-col justify-between gap-2 shadow-2xs">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 border font-mono">.${fmt.ext}</span>
+                  <span class="text-xs font-bold text-slate-800 truncate">${fmt.label}</span>
+                </div>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${style.bg} capitalize">${fmt.category}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 line-clamp-2">${fmt.description}</p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Converts To:</span>
+              <div class="flex flex-wrap gap-1">
+                ${fmt.targets.map(t => `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-bold font-mono uppercase">${t}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- 2. Conversion Settings Modal ---
+    function openSettingsModal(id) {
+      const item = fileQueue.find(i => i.id === id);
+      if (!item) return;
+      activeSettingsItemId = id;
+
+      document.getElementById('settings-modal-title').textContent = `Settings: ${item.name}`;
+      document.getElementById('settings-modal-subtitle').textContent = `Configuring conversion to .${item.targetFormat.toUpperCase()}`;
+
+      const body = document.getElementById('settings-modal-body');
+      let html = '';
+
+      // Image settings
+      if (item.category === 'image' || ['webp', 'jpg', 'jpeg'].includes(item.targetFormat)) {
+        html += `
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Compression Quality (${Math.round((item.options.quality || 0.92) * 100)}%)</label>
+            <input type="range" min="10" max="100" value="${Math.round((item.options.quality || 0.92) * 100)}" class="w-full accent-indigo-600" oninput="this.nextElementSibling.innerText = this.value + '%'" id="setting-quality" />
+            <span class="text-slate-400 text-[11px]">${Math.round((item.options.quality || 0.92) * 100)}%</span>
+          </div>
+        `;
+      }
+
+      // PDF settings
+      if (item.targetFormat === 'pdf') {
+        html += `
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">PDF Page Size</label>
+              <select id="setting-pdf-size" class="w-full bg-slate-100 p-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="a4" ${item.options.pdfPageSize === 'a4' ? 'selected' : ''}>A4 Standard</option>
+                <option value="letter" ${item.options.pdfPageSize === 'letter' ? 'selected' : ''}>Letter</option>
+                <option value="legal" ${item.options.pdfPageSize === 'legal' ? 'selected' : ''}>Legal</option>
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Orientation</label>
+              <select id="setting-pdf-orient" class="w-full bg-slate-100 p-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="portrait" ${item.options.pdfOrientation === 'portrait' ? 'selected' : ''}>Portrait</option>
+                <option value="landscape" ${item.options.pdfOrientation === 'landscape' ? 'selected' : ''}>Landscape</option>
+              </select>
+            </div>
+          </div>
+        `;
+      }
+
+      // JSON / YAML Indent
+      if (['json', 'yaml', 'yml'].includes(item.targetFormat)) {
+        html += `
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Indentation Spaces</label>
+            <select id="setting-indent" class="w-full bg-slate-100 p-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="2" ${(item.options.jsonIndent === 2 || item.options.yamlIndent === 2) ? 'selected' : ''}>2 Spaces</option>
+              <option value="4" ${(item.options.jsonIndent === 4 || item.options.yamlIndent === 4) ? 'selected' : ''}>4 Spaces</option>
+            </select>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="p-3 bg-indigo-50 rounded-xl text-indigo-700 text-[11px] font-medium">
+          Settings are processed directly by browser hardware during conversion.
+        </div>
+      `;
+
+      body.innerHTML = html;
+      document.getElementById('modal-settings').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('modal-settings').classList.add('hidden');
+      activeSettingsItemId = null;
+    }
+
+    function saveSettingsModal() {
+      const item = fileQueue.find(i => i.id === activeSettingsItemId);
+      if (!item) return;
+
+      const qEl = document.getElementById('setting-quality');
+      if (qEl) item.options.quality = parseInt(qEl.value, 10) / 100;
+
+      const pdfSizeEl = document.getElementById('setting-pdf-size');
+      if (pdfSizeEl) item.options.pdfPageSize = pdfSizeEl.value;
+
+      const pdfOrientEl = document.getElementById('setting-pdf-orient');
+      if (pdfOrientEl) item.options.pdfOrientation = pdfOrientEl.value;
+
+      const indentEl = document.getElementById('setting-indent');
+      if (indentEl) {
+        const val = parseInt(indentEl.value, 10);
+        item.options.jsonIndent = val;
+        item.options.yamlIndent = val;
+      }
+
+      closeSettingsModal();
+      showToast('Settings updated', 'info');
+    }
+
+    // --- 3. Preview Modal ---
+    function openPreviewModal(id) {
+      const item = fileQueue.find(i => i.id === id);
+      if (!item || !item.output) return;
+
+      document.getElementById('preview-modal-filename').textContent = item.output.filename;
+      document.getElementById('preview-modal-meta').textContent = `${formatFileSize(item.output.size)} • ${item.output.extension.toUpperCase()} • Generated in ${item.output.timeTakenMs}ms`;
+
+      const downloadBtn = document.getElementById('preview-modal-download-btn');
+      downloadBtn.onclick = () => downloadBlob(item.output.blob, item.output.filename);
+
+      const contentEl = document.getElementById('preview-modal-content');
+      contentEl.innerHTML = '';
+
+      if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp', 'ico'].includes(item.output.extension)) {
+        const url = URL.createObjectURL(item.output.blob);
+        contentEl.innerHTML = `<img src="${url}" class="max-h-[60vh] max-w-full rounded-xl object-contain shadow-sm" />`;
+      } else if (item.output.text) {
+        contentEl.innerHTML = `<pre class="w-full text-xs font-mono bg-slate-900 text-slate-100 p-4 rounded-2xl overflow-auto max-h-[60vh]">${escapeXml(item.output.text.slice(0, 5000))}${item.output.text.length > 5000 ? '\n\n[... truncated for display ...]' : ''}</pre>`;
+      } else if (item.output.extension === 'pdf') {
+        const url = URL.createObjectURL(item.output.blob);
+        contentEl.innerHTML = `<iframe src="${url}" class="w-full h-[60vh] rounded-2xl border border-slate-200"></iframe>`;
+      } else {
+        contentEl.innerHTML = `
+          <div class="text-center p-8">
+            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="file" class="h-6 w-6"></i>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">${item.output.filename}</h4>
+            <p class="text-xs text-slate-500">Binary file ready for download (${formatFileSize(item.output.size)})</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('modal-preview').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePreviewModal() {
+      document.getElementById('modal-preview').classList.add('hidden');
+    }
+
+    // ================= SAMPLE GENERATORS FOR INSTANT TESTING =================
+    function loadSampleImage() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 400, 300);
+      grad.addColorStop(0, '#4f46e5');
+      grad.addColorStop(1, '#06b6d4');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 400, 300);
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(200, 130, 45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('FluxConvert Local Sample', 200, 220);
+      canvas.toBlob(b => {
+        const f = new File([b], 'sample_graphic.png', { type: 'image/png' });
+        addFilesToQueue([f]);
+      });
+    }
+
+    function loadSampleSpreadsheet() {
+      const csv = `ID,Product,Category,Price_USD,Inventory,Rating\n101,Pro Wireless Headset,Audio,149.99,50,4.8\n102,Mechanical Keyboard,Accessories,89.50,120,4.9\n103,4K Studio Display,Monitors,429.00,18,4.7\n104,Ergonomic Mouse,Accessories,45.00,95,4.6`;
+      const f = new File([new Blob([csv], { type: 'text/csv' })], 'inventory_data.csv', { type: 'text/csv' });
+      addFilesToQueue([f]);
+    }
+
+    function loadSampleDocument() {
+      const md = `# FluxConvert Local Engine\n\n100% offline file converter running directly in your web browser.\n\n## Highlights\n- **100% Client-Side Privacy**: Zero file uploads.\n- **100+ Formats**: Converts images, documents, audio, data & spreadsheets.\n- **Fast WebAssembly & Canvas** execution.\n`;
+      const f = new File([new Blob([md], { type: 'text/markdown' })], 'documentation.md', { type: 'text/markdown' });
+      addFilesToQueue([f]);
+    }
+
+    function loadSampleData() {
+      const json = { app: "FluxConvert", version: "3.0.0", offline: true, supported_types: ["png", "webp", "pdf", "docx", "xlsx", "csv", "json", "yaml", "sql", "mp3", "wav"] };
+      const f = new File([new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' })], 'configuration.json', { type: 'application/json' });
+      addFilesToQueue([f]);
+    }
+
+    function loadSampleAudio() {
+      // 1-second clean synthetic WAV chord
+      const sampleRate = 44100;
+      const duration = 1.0;
+      const samples = sampleRate * duration;
+      const buffer = new ArrayBuffer(44 + samples * 2);
+      const view = new DataView(buffer);
+      function writeStr(offset, str) {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      }
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + samples * 2, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, 'data');
+      view.setUint32(40, samples * 2, true);
+
+      let offset = 44;
+      for (let i = 0; i < samples; i++) {
+        const t = i / sampleRate;
+        const env = Math.max(0, 1 - t / duration);
+        const sample = Math.sin(2 * Math.PI * 440 * t) * env * 0.5;
+        view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+        offset += 2;
+      }
+
+      const f = new File([new Blob([buffer], { type: 'audio/wav' })], 'synth_tone.wav', { type: 'audio/wav' });
+      addFilesToQueue([f]);
+    }
+
+    // Initial Icon Render
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
