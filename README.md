@@ -8,7 +8,7 @@
 
 Modern, beautiful and free unlimited usage specifically built for any device with browser.  
 
-[![License](https://img.shields.io/github/license/techambient/vConvert?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/github/license/techambient/FluxConvert?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Chromium-109%2B-34A853?style=for-the-badge)]()
 [![Material Web](https://img.shields.io/badge/Material%203-Web-4285F4?style=for-the-badge)]()
 
