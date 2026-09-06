@@ -71,7 +71,7 @@ Download the latest batch script from the Releases page.
 Or build from source:
 
 ```bash
-git clone https://github.com/techambient/HybridAI.git
+git clone https://github.com/techambient/FluxConvert.git
 ```
 
 Open the project using Visual Studio Code. 
