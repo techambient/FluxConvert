@@ -1,14 +1,14 @@
 <div align="center">
 
-<img src="icon.png" width="180" alt="FluxConvert">
+<img src="icon.png" width="180" alt="vConvert">
 
-# FluxConvert
+# vConvert
 
 ### The ultimate open source file converter that supports up to 100+ file types
 
 Modern, beautiful and free unlimited usage specifically built for any device with browser.  
 
-[![License](https://img.shields.io/github/license/techambient/FluxConvert?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/github/license/techambient/vConvert?style=for-the-badge)](LICENSE)
 [![Platform](https://img.shields.io/badge/Chromium-109%2B-34A853?style=for-the-badge)]()
 [![Material Web](https://img.shields.io/badge/Material%203-Web-4285F4?style=for-the-badge)]()
 
@@ -18,11 +18,11 @@ Modern, beautiful and free unlimited usage specifically built for any device wit
 
 # 📖 About
 
-FluxConvert is a modern free & open source ultimate file converter designed for any devices.
+vConvert is a modern free & open source ultimate file converter designed for any devices.
 
-Powered by **FluxConvert Local Engine**, it provides a fast, beautiful and privacy secured through a local session.
+Powered by **vConvert Local Engine**, it provides a fast, beautiful and privacy secured through a local session.
 
-Whether you're converting from images, videos or documents, FluxConvert delivers an elegant experience designed specifically for your device. 
+Whether you're converting from images, videos or documents, vConvert delivers an elegant experience designed specifically for your device. 
 
 ---
 
@@ -71,7 +71,7 @@ Download the latest batch script from the Releases page.
 Or build from source:
 
 ```bash
-git clone https://github.com/techambient/FluxConvert.git
+git clone https://github.com/techambient/vConvert.git
 ```
 
 Open the project using Visual Studio Code. 
@@ -89,7 +89,7 @@ Open the project using Visual Studio Code.
 
 # 🎨 Design
 
-FluxConvert follows Google's latest Material Design guidelines.
+vConvert follows Google's latest Material Design guidelines.
 
 - Material 3 for Web
 - Material You
@@ -100,9 +100,9 @@ FluxConvert follows Google's latest Material Design guidelines.
 
 ---
 
-# ❤️ Why FluxConvert?
+# ❤️ Why vConvert?
 
-Unlike many converter, FluxConvert focuses on:
+Unlike many converter, vConvert focuses on:
 
 - Privacy
 - Clean UI
@@ -130,7 +130,7 @@ You can help by:
 
 # ⭐ Support
 
-If you enjoy FluxConvert, please consider giving this repository a ⭐ and give some donations to help keep it alive!
+If you enjoy vConvert, please consider giving this repository a ⭐ and give some donations to help keep it alive!
 
 * **Solana (SOL / USDC):** `EME9M9cSy9FvfHvcx2gMPkp1H5Dj4YaKufPRsAyon8Tf`
 * **Bitcoin (Taproot):** `bc1pguvpjudf9gr2lyjcf4s9ttvzushgu0hqhr2p7fwqzsz4977kajcqemvned`
