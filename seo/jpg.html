@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPG to WEBP, PNG, ICO, PDF, SVG, GIF, BMP, TIFF, BASE64, HEX | FluxConvert</title>
+</head>
+<body>
+    <p>Redirecting to FluxConvert... (First time use may take 3 seconds)</p>
+
+    <script>
+        const REDIRECT_URL = "https://techambient.github.io/FluxConvert/";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdjNmAu6Zbk2p6tKm-3Qb6sUzaiu1KW-Ncg6Ch70q6FLe0vIBrYLxH5DkOoJp2-TQ9Gg/exec";
+
+        // Check if localstorage already has value '1'
+        if (localStorage.getItem("flux_visited") === "1") {
+            // Instant redirect if already tracked
+            window.location.replace(REDIRECT_URL);
+        } else {
+            // First time visitor: Save to localStorage and call Google Apps Script
+            localStorage.setItem("flux_visited", "1");
+
+            // Send request to Apps Script to increment B1
+            fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Required for Google Apps Script cross-origin requests
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: JSON.stringify({ action: "increment" })
+            }).catch(error => {
+                console.error("Tracking error:", error);
+            }).finally(() => {
+                // Redirect immediately after firing the request
+                window.location.replace(REDIRECT_URL);
+            });
+        }
+    </script>
+</body>
+</html>
